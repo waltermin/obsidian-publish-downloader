@@ -17,7 +17,7 @@ if len(sys.argv) < 3:
 
 main_page = requests.get(sys.argv[1]).text
 
-match_siteinfo = re.findall('window\.siteInfo\s*=\s*({[^}]+})', main_page)
+match_siteinfo = re.findall('window\\.siteInfo\\s*=\\s*({[^}]+})', main_page)
 
 if len(match_siteinfo) == 0:
     print("Unable to extract siteInfo")
