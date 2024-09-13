@@ -11,6 +11,12 @@ import sys
 import re
 import json
 
+
+def sanitize_filename(filename):
+    # Replace characters that are invalid in Windows filenames
+    invalid_chars = r'[<>:"/\\|?*]'
+    return re.sub(invalid_chars, '_', filename)
+
 if len(sys.argv) < 3:
     print(f"Usage: {sys.argv[0]} URL FOLDER")
     exit(1)
@@ -33,7 +39,11 @@ cache_data = requests.get(f"https://{host}/cache/{uid}").json()
 for i in tqdm(cache_data.keys()):
     resp = requests.get(f"https://{host}/access/{uid}/{i}")
 
-    path = os.path.join(sys.argv[2], i)
+    # Keep directory structure
+    path_parts = i.split('/')
+    sanitized_parts = [sanitize_filename(part) for part in path_parts]
+    sanitized_path = '/'.join(sanitized_parts)
+    path = os.path.join(sys.argv[2], sanitized_path)
     parent_folder = os.path.dirname(os.path.abspath(path))
 
     if not os.path.exists(parent_folder):
