@@ -10,6 +10,7 @@ from tqdm import tqdm
 import sys
 import re
 import json
+import time
 
 if len(sys.argv) < 3:
     print(f"Usage: {sys.argv[0]} URL FOLDER")
@@ -31,14 +32,24 @@ host = siteinfo["host"]
 cache_data = requests.get(f"https://{host}/cache/{uid}").json()
 
 for i in tqdm(cache_data.keys()):
-    resp = requests.get(f"https://{host}/access/{uid}/{i}")
-
-    path = os.path.join(sys.argv[2], i)
-    parent_folder = os.path.dirname(os.path.abspath(path))
-
-    if not os.path.exists(parent_folder):
-        os.makedirs(parent_folder)
-
-    with open(path, "wb") as f:
-        for chunk in resp.iter_content(chunk_size=1048576): 
-            f.write(chunk)
+    while True:
+        try:
+            resp = requests.get(f"https://{host}/access/{uid}/{i}")
+        
+            path = os.path.join(sys.argv[2], i)
+            parent_folder = os.path.dirname(os.path.abspath(path))
+        
+            if not os.path.exists(parent_folder):
+                os.makedirs(parent_folder)
+        
+            with open(path, "wb") as f:
+                for chunk in resp.iter_content(chunk_size=1048576): 
+                    f.write(chunk)
+            break
+        except KeyboardInterrupt:
+            print("Stop at cache:", i)
+            break
+        except Exception as e:
+            print("Got exception:", e)
+            time.sleep(5)
+            print("Retry")
