@@ -15,7 +15,7 @@ if len(sys.argv) < 3:
     print(f"Usage: {sys.argv[0]} URL FOLDER")
     exit(1)
 
-main_page = requests.get(sys.argv[1]).text
+main_page = requests.get(sys.argv[1], timeout=30).text
 
 match_siteinfo = re.findall('window\.siteInfo\s*=\s*({[^}]+})', main_page)
 
